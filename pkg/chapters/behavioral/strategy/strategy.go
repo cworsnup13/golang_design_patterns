@@ -12,6 +12,24 @@ type Component interface {
 	Shrink() int
 }
 
+type BasicComponent struct {
+	Natural int
+	Stretched int
+	Shrinked int
+}
+
+func (b *BasicComponent) NaturalSize() int {
+	return b.Natural
+}
+
+func (b *BasicComponent) Stretch() int {
+	return b.Stretched
+}
+
+func (b *BasicComponent) Shrink() int {
+	return b.Shrinked
+}
+
 type Composition struct {
 	compositor Compositor
 	components []Component
@@ -22,9 +40,10 @@ type Composition struct {
 	lineCount      int
 }
 
-func NewComposition(c Compositor) Composition {
+func NewComposition(c Compositor, comps []Component) Composition {
 	return Composition{
 		compositor: c,
+		components: comps,
 	}
 }
 
@@ -41,7 +60,7 @@ func (c *Composition) Repair() {
 	}
 
 	breakCount := c.compositor.Compose(natural, stretch, shrink, c.lineBreaks, c.componentCount, c.lineWidth)
-	// Lay out components according to breaks
+
 	fmt.Println("Breaks", breakCount)
 }
 
@@ -54,7 +73,11 @@ func NewTeXCompositor() TeXCompositor{
 }
 
 func (c *TeXCompositor) Compose(natural, stretch, shrink, breaks []int, compCount, lineWidth int) int {
-	return 0
+	var total int
+	for i := range natural {
+		total += natural[i] * stretch[i]
+	}
+	return total
 }
 
 type SimpleCompositor struct {
@@ -66,19 +89,42 @@ func NewSimpleCompositor() SimpleCompositor{
 }
 
 func (c *SimpleCompositor) Compose(natural, stretch, shrink, breaks []int, compCount, lineWidth int) int {
-	return 2
+	var total int
+	for i := range natural {
+		total += natural[i]
+	}
+	return total
 }
 
 func main() {
+
+	c1 := BasicComponent{
+		Natural:3,
+		Stretched: 2,
+		Shrinked: 1,
+	}
+
+	c2 := BasicComponent{
+		Natural:3,
+		Stretched: 2,
+		Shrinked: 1,
+	}
+
+	c3 := BasicComponent{
+		Natural:3,
+		Stretched: 2,
+		Shrinked: 1,
+	}
+	comps := []Component{&c1, &c2, &c3}
 	s := NewSimpleCompositor()
 	t:= NewTeXCompositor()
 
-	simple := NewComposition(&s)
-	tex := NewComposition(&t)
+	simple := NewComposition(&s, comps)
+	tex := NewComposition(&t, comps)
 
 	simple.Repair()
-	// 2
+	// 9
 
 	tex.Repair()
-	// 0
+	// 18
 }
