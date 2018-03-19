@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Compositor interface {
 	Compose(natural, stretch, shrink, breaks []int, compCount, lineWidth int) int
@@ -13,9 +15,9 @@ type Component interface {
 }
 
 type BasicComponent struct {
-	Natural int
+	Natural   int
 	Stretched int
-	Shrinked int
+	Shrinked  int
 }
 
 func (b *BasicComponent) NaturalSize() int {
@@ -47,6 +49,10 @@ func NewComposition(c Compositor, comps []Component) Composition {
 	}
 }
 
+func (c *Composition) SetCompositor(comp Compositor) {
+	c.compositor = comp
+}
+
 func (c *Composition) Repair() {
 
 	var natural = make([]int, len(c.components))
@@ -65,10 +71,9 @@ func (c *Composition) Repair() {
 }
 
 type TeXCompositor struct {
-
 }
 
-func NewTeXCompositor() TeXCompositor{
+func NewTeXCompositor() TeXCompositor {
 	return TeXCompositor{}
 }
 
@@ -81,10 +86,9 @@ func (c *TeXCompositor) Compose(natural, stretch, shrink, breaks []int, compCoun
 }
 
 type SimpleCompositor struct {
-
 }
 
-func NewSimpleCompositor() SimpleCompositor{
+func NewSimpleCompositor() SimpleCompositor {
 	return SimpleCompositor{}
 }
 
@@ -99,32 +103,40 @@ func (c *SimpleCompositor) Compose(natural, stretch, shrink, breaks []int, compC
 func main() {
 
 	c1 := BasicComponent{
-		Natural:3,
+		Natural:   3,
 		Stretched: 2,
-		Shrinked: 1,
+		Shrinked:  1,
 	}
 
 	c2 := BasicComponent{
-		Natural:3,
+		Natural:   3,
 		Stretched: 2,
-		Shrinked: 1,
+		Shrinked:  1,
 	}
 
 	c3 := BasicComponent{
-		Natural:3,
+		Natural:   3,
 		Stretched: 2,
-		Shrinked: 1,
+		Shrinked:  1,
 	}
 	comps := []Component{&c1, &c2, &c3}
 	s := NewSimpleCompositor()
-	t:= NewTeXCompositor()
+	t := NewTeXCompositor()
 
+	// Constructor based strategy application
 	simple := NewComposition(&s, comps)
 	tex := NewComposition(&t, comps)
 
 	simple.Repair()
 	// 9
-
 	tex.Repair()
+	// 18
+
+	// One example where you can change the compositor on the same composition
+	hotswap := NewComposition(&s, comps)
+	hotswap.Repair()
+	// 9
+	hotswap.SetCompositor(&t)
+	hotswap.Repair()
 	// 18
 }
