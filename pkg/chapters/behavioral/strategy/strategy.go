@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Compositor is the Strategy interface
 type Compositor interface {
 	Compose(natural, stretch, shrink, breaks []int, compCount, lineWidth int) int
 }
@@ -32,6 +33,7 @@ func (b *BasicComponent) Shrink() int {
 	return b.Shrinked
 }
 
+// Composition is the context
 type Composition struct {
 	compositor Compositor
 	components []Component
