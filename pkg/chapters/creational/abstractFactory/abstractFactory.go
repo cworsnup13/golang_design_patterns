@@ -1,7 +1,5 @@
 package main
 
-type Direction int
-
 type MazeFactory interface {
 	MakeMaze() *Maze
 	MakeWall() *Wall
